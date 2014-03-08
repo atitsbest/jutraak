@@ -1,6 +1,7 @@
 package ports
 
 import (
+    "sort"
     "testing"
     "time"
 
@@ -21,7 +22,7 @@ func TestMongoProblemRepository(t *testing.T) {
             problem := &entities.Problem{
                 Summary:     "Wir haben ein Problem",
                 Description: "Nix geht mehr!",
-                Tags:        []string{"Tag1", "Tag 2"},
+                Tags:        []string{"Tag1", "Tag 2", "Bug"},
                 CreatedBy:   "Tester",
                 CreatedAt:   time.Now(),
             }
@@ -35,6 +36,16 @@ func TestMongoProblemRepository(t *testing.T) {
             })
             Convey("Then the new Id should be set in the problem", func() {
                 So(problem.Id, ShouldNotBeBlank)
+            })
+        })
+
+        Convey("When I request all Problem tags", func() {
+            tags, _ := sut.GetAllTags()
+            sort.Strings(tags)
+
+            Convey("Then I get a distinct list of all tags", func() {
+                // Wir nehmen hier die Tags aus dem Test von oben.
+                So(tags, ShouldResemble, []string{"Bug", "Tag 2", "Tag1"})
             })
         })
     })

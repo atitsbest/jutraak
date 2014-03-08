@@ -11,18 +11,14 @@ type MongoProblemRepository struct {
     connectionString string
 }
 
-/**
-  CTR
-*/
+// CTR
 func NewMongoProblemRepository(connectionString string) *MongoProblemRepository {
     return &MongoProblemRepository{
         connectionString: connectionString,
     }
 }
 
-/**
-  Neues Problem einfügen.
-*/
+// Neues Problem einfügen.
 func (self *MongoProblemRepository) Insert(problem *entities.Problem) error {
     session, err := mgo.Dial(self.connectionString)
     if err != nil {
@@ -44,4 +40,26 @@ func (self *MongoProblemRepository) Insert(problem *entities.Problem) error {
     }
 
     return nil
+}
+
+// Liefert alle Tags die in allen Problemen vorkommen.
+func (self *MongoProblemRepository) GetAllTags() ([]string, error) {
+    session, err := mgo.Dial(self.connectionString)
+    if err != nil {
+        return nil, err
+    }
+    defer session.Close()
+
+    c := session.DB("jutraak_test").C("$cmd")
+    result := &QueryValues{}
+    err = c.Find(bson.M{"distinct": "problems", "key": "tags"}).One(result)
+    if err != nil {
+        return nil, err
+    }
+
+    return result.Values, nil
+}
+
+type QueryValues struct {
+    Values []string
 }
