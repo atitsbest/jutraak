@@ -1,14 +1,14 @@
 package ports
 
 import (
-  "time"
-  "testing"
+    "testing"
+    "time"
 
-  "dccs/jutraak/bugtracking/entities"
+    "github.com/atitsbest/jutraak/bugtracking/domain/entities"
 
-  . "github.com/smartystreets/goconvey/convey"
-  "labix.org/v2/mgo"
-  "labix.org/v2/mgo/bson"
+    . "github.com/smartystreets/goconvey/convey"
+    "labix.org/v2/mgo"
+    "labix.org/v2/mgo/bson"
 )
 
 func TestMongoProblemRepository(t *testing.T) {
@@ -19,40 +19,44 @@ func TestMongoProblemRepository(t *testing.T) {
 
         Convey("When I insert a new Problem", func() {
             problem := &entities.Problem{
-              Summary: "Wir haben ein Problem",
-              Description: "Nix geht mehr!",
-              CreatedBy: "Tester",
-              CreatedAt: time.Now(),
+                Summary:     "Wir haben ein Problem",
+                Description: "Nix geht mehr!",
+                Tags:        []string{"Tag1", "Tag 2"},
+                CreatedBy:   "Tester",
+                CreatedAt:   time.Now(),
             }
             sut.Insert(problem)
 
             Convey("Then the problem should be in the MongoDB", func() {
-              inserted := getMongoProblemById(problem.Id)
-              So(inserted, ShouldNotBeNil)
-              So(inserted.Summary, ShouldEqual, problem.Summary)
+                inserted := getMongoProblemById(problem.Id)
+                So(inserted, ShouldNotBeNil)
+                So(inserted.Summary, ShouldEqual, problem.Summary)
+                So(inserted.Tags, ShouldResemble, problem.Tags)
             })
             Convey("Then the new Id should be set in the problem", func() {
-              So(problem.Id, ShouldNotBeBlank)
+                So(problem.Id, ShouldNotBeBlank)
             })
         })
     })
 }
 
 func getMongoProblemById(id string) *entities.Problem {
-  session, err := mgo.Dial("localhost")
-  if err != nil { panic(err) }
-  defer session.Close()
+    session, err := mgo.Dial("localhost")
+    if err != nil {
+        panic(err)
+    }
+    defer session.Close()
 
-  // Optional. Switch the session to a monotonic behavior.
-  session.SetMode(mgo.Monotonic, true)
+    // Optional. Switch the session to a monotonic behavior.
+    session.SetMode(mgo.Monotonic, true)
 
-  c := session.DB("jutraak_test").C("problems")
+    c := session.DB("jutraak_test").C("problems")
 
-  result := &entities.Problem{}
-  err = c.Find(bson.M{"id": id}).One(result)
-  if err != nil { panic(err) } 
+    result := &entities.Problem{}
+    err = c.Find(bson.M{"id": id}).One(result)
+    if err != nil {
+        panic(err)
+    }
 
-  return result
+    return result
 }
-
-

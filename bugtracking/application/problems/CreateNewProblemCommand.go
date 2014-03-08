@@ -1,12 +1,13 @@
 package problems
 
 import (
-  "time"
+    "time"
 )
 
 type CreateNewProblemCommand struct {
-  Summary string
-  Description string
-  CreatedBy string
-  CreatedAt time.Time
+    Summary     string
+    Description string
+    Tags        []string
+    CreatedBy   string
+    CreatedAt   time.Time
 }
