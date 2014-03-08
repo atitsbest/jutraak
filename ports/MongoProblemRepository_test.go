@@ -64,6 +64,16 @@ func TestMongoProblemRepository(t *testing.T) {
                 })
             })
 
+            Convey("When I search for problems with a tag", func() {
+                problems, _ := sut.GetProblemsByTag([]string{"Tag1"})
+
+                Convey("Then I get a list of problems with this tag assigned", func() {
+                    So(len(problems), ShouldEqual, 2)
+                    So(problems[0].Tags, ShouldContain, "Tag1")
+                    So(problems[1].Tags, ShouldContain, "Tag1")
+                })
+            })
+
             Reset(func() { removeAllProblems() })
         })
     })

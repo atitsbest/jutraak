@@ -75,6 +75,21 @@ func (self *MongoProblemRepository) GetAllProblems() ([]entities.Problem, error)
     return result, err
 }
 
+// Listert ein Array mit allen Problemen denen diese Tags zugeordnet sind.
+func (self *MongoProblemRepository) GetProblemsByTag(tags []string) ([]entities.Problem, error) {
+    session, err := mgo.Dial(self.connectionString)
+    if err != nil {
+        return nil, err
+    }
+    defer session.Close()
+
+    c := session.DB("jutraak_test").C("problems")
+    var result []entities.Problem
+    err = c.Find(bson.M{"tags": bson.M{"$all": tags}}).All(&result)
+
+    return result, err
+}
+
 type QueryValues struct {
     Values []string
 }
