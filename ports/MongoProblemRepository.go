@@ -60,6 +60,21 @@ func (self *MongoProblemRepository) GetAllTags() ([]string, error) {
     return result.Values, nil
 }
 
+// Liefert ein Array mit allen Problemen.
+func (self *MongoProblemRepository) GetAllProblems() ([]entities.Problem, error) {
+    session, err := mgo.Dial(self.connectionString)
+    if err != nil {
+        return nil, err
+    }
+    defer session.Close()
+
+    c := session.DB("jutraak_test").C("problems")
+    var result []entities.Problem
+    err = c.Find(nil).All(&result)
+
+    return result, err
+}
+
 type QueryValues struct {
     Values []string
 }
