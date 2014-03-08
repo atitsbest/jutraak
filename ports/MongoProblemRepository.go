@@ -31,7 +31,7 @@ func (self *MongoProblemRepository) Insert(problem *entities.Problem) error {
 
     c := session.DB("jutraak_test").C("problems")
     // Neue Id erstellen.
-    problem.Id = string(bson.NewObjectId())
+    problem.Id = entities.NewProblemId()
     err = c.Insert(problem)
     if err != nil {
         // Bei einem Fehler müssen wir die Id wieder löschen.
@@ -88,6 +88,23 @@ func (self *MongoProblemRepository) GetProblemsByTag(tags []string) ([]entities.
     err = c.Find(bson.M{"tags": bson.M{"$all": tags}}).All(&result)
 
     return result, err
+}
+
+func (self *MongoProblemRepository) GetById(id entities.ProblemId) (*entities.Problem, error) {
+    session, err := mgo.Dial(self.connectionString)
+    if err != nil {
+        return nil, err
+    }
+    defer session.Close()
+
+    c := session.DB("jutraak_test").C("problems")
+    result := &entities.Problem{}
+    err = c.Find(bson.M{"id": id}).One(result)
+    if err != nil {
+        panic(err)
+    }
+
+    return result, nil
 }
 
 type QueryValues struct {

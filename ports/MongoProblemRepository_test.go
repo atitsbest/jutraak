@@ -7,9 +7,9 @@ import (
 
     "github.com/atitsbest/jutraak/bugtracking/domain/entities"
 
+    uuid "github.com/nu7hatch/gouuid"
     . "github.com/smartystreets/goconvey/convey"
     "labix.org/v2/mgo"
-    "labix.org/v2/mgo/bson"
 )
 
 func TestMongoProblemRepository(t *testing.T) {
@@ -28,21 +28,23 @@ func TestMongoProblemRepository(t *testing.T) {
             }
             sut.Insert(problem)
 
-            Convey("Then the problem should be in the MongoDB", func() {
-                inserted := getMongoProblemById(problem.Id)
+            Convey("Then the problem should be in MongoDB", func() {
+                inserted, _ := sut.GetById(problem.Id)
                 So(inserted, ShouldNotBeNil)
                 So(inserted.Summary, ShouldEqual, problem.Summary)
                 So(inserted.Tags, ShouldResemble, problem.Tags)
             })
-            Convey("Then the new Id should be set in the problem", func() {
-                So(problem.Id, ShouldNotBeBlank)
+            Convey("And the new Id should be a valid ProblemId", func() {
+                _, err := uuid.ParseHex(string(problem.Id))
+                So(err, ShouldBeNil)
             })
 
             Reset(func() { removeAllProblems() })
         })
 
         Convey("Given 3 problems in the db", func() {
-            sut.Insert(&entities.Problem{Tags: []string{"Tag 2", "Tag1"}})
+            problem1 := &entities.Problem{Tags: []string{"Tag 2", "Tag1"}}
+            sut.Insert(problem1)
             sut.Insert(&entities.Problem{Tags: []string{"Bug"}})
             sut.Insert(&entities.Problem{Tags: []string{"Tag1"}})
 
@@ -74,30 +76,20 @@ func TestMongoProblemRepository(t *testing.T) {
                 })
             })
 
+            Convey("When I request a problem by Id", func() {
+                problems, _ := sut.GetAllProblems()
+                problem, err := sut.GetById(problems[0].Id)
+
+                Convey("Then I get that single problem", func() {
+                    So(problem, ShouldNotBeNil)
+                    So(err, ShouldBeNil)
+                    So(problem.Id, ShouldEqual, problems[0].Id)
+                })
+            })
+
             Reset(func() { removeAllProblems() })
         })
     })
-}
-
-func getMongoProblemById(id string) *entities.Problem {
-    session, err := mgo.Dial("localhost")
-    if err != nil {
-        panic(err)
-    }
-    defer session.Close()
-
-    // Optional. Switch the session to a monotonic behavior.
-    session.SetMode(mgo.Monotonic, true)
-
-    c := session.DB("jutraak_test").C("problems")
-
-    result := &entities.Problem{}
-    err = c.Find(bson.M{"id": id}).One(result)
-    if err != nil {
-        panic(err)
-    }
-
-    return result
 }
 
 func removeAllProblems() {
