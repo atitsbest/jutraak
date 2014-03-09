@@ -13,12 +13,13 @@ import (
 )
 
 func TestMongoProblemRepository(t *testing.T) {
+    var problem *entities.Problem
+    var inserted *entities.Problem
+    sut := NewMongoProblemRepository("localhost")
 
     // Only pass t into top-level Convey calls
     Convey("Given a Mongo-Problems-Repository", t, func() {
         removeAllProblems()
-        sut := NewMongoProblemRepository("localhost")
-        var problem *entities.Problem
 
         Convey("When I insert a new Problem", func() {
             problem = &entities.Problem{
@@ -30,7 +31,6 @@ func TestMongoProblemRepository(t *testing.T) {
             }
             err := sut.Insert(problem)
             So(err, ShouldBeNil)
-            var inserted *entities.Problem
 
             Convey("Then the problem should be in MongoDB", func() {
                 inserted, _ = sut.GetById(problem.Id)
