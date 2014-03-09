@@ -42,6 +42,25 @@ func (self *MongoProblemRepository) Insert(problem *entities.Problem) error {
     return nil
 }
 
+func (self *MongoProblemRepository) Update(problem *entities.Problem) error {
+    session, err := mgo.Dial(self.connectionString)
+    if err != nil {
+        return err
+    }
+    defer session.Close()
+
+    // Optional. Switch the session to a monotonic behavior.
+    session.SetMode(mgo.Monotonic, true)
+
+    c := session.DB("jutraak_test").C("problems")
+    err = c.Update(bson.M{"id": problem.Id}, problem)
+    if err != nil {
+        return err
+    }
+
+    return nil
+}
+
 // Liefert alle Tags die in allen Problemen vorkommen.
 func (self *MongoProblemRepository) GetAllTags() ([]string, error) {
     session, err := mgo.Dial(self.connectionString)
