@@ -93,12 +93,14 @@ func (self *ProblemApplicationService) RemoveProblemAttachment(problemId entitie
 }
 
 // Ein Problem kommentieren.
-func (self *ProblemApplicationService) CommentProblem(problemId entities.ProblemId, comment string) error {
+func (self *ProblemApplicationService) CommentProblem(
+    problemId entities.ProblemId, text string, who string) error {
     problem, err := self.problems.GetById(problemId)
     if err != nil {
         return err
     }
 
+    comment := entities.NewComment(text, who)
     problem.Comments = append(problem.Comments, comment)
 
     err = self.problems.Update(problem)

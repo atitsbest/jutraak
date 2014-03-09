@@ -90,11 +90,19 @@ func TestProblemApplicationService(t *testing.T) {
             Reset(func() { problem = nil })
 
             Convey("When I add a comment", func() {
-                sut.CommentProblem(problem.Id, "Comment")
+                sut.CommentProblem(problem.Id, "Comment", "Tester")
 
                 Convey("Then the problem contains a comment", func() {
                     commented, _ := repository.GetById(problem.Id)
                     So(len(commented.Comments), ShouldEqual, 1)
+
+                    var comment *entities.Comment
+                    comment = commented.Comments[0]
+
+                    Convey("And the comment contains who and when", func() {
+                        So(comment.CreatedBy, ShouldEqual, "Tester")
+                        So(time.Since(comment.CreatedAt), ShouldBeLessThan, oneSecond)
+                    })
                 })
             })
         })
