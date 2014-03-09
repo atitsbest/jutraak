@@ -30,9 +30,10 @@ func TestMongoProblemRepository(t *testing.T) {
             }
             err := sut.Insert(problem)
             So(err, ShouldBeNil)
+            var inserted *entities.Problem
 
             Convey("Then the problem should be in MongoDB", func() {
-                inserted, _ := sut.GetById(problem.Id)
+                inserted, _ = sut.GetById(problem.Id)
                 So(inserted, ShouldNotBeNil)
                 So(inserted.Summary, ShouldEqual, problem.Summary)
                 So(inserted.Tags, ShouldResemble, problem.Tags)
@@ -46,7 +47,7 @@ func TestMongoProblemRepository(t *testing.T) {
             })
 
             Convey("When I get the inserted Problem", func() {
-                inserted, _ := sut.GetById(problem.Id)
+                inserted, _ = sut.GetById(problem.Id)
 
                 Convey("And update it with new values", func() {
                     inserted.Summary = "Hat sich geändert"
@@ -67,8 +68,7 @@ func TestMongoProblemRepository(t *testing.T) {
         })
 
         Convey("Given 3 problems in the db", func() {
-            problem1 := &entities.Problem{Tags: []string{"Tag 2", "Tag1"}}
-            sut.Insert(problem1)
+            sut.Insert(&entities.Problem{Tags: []string{"Tag 2", "Tag1"}})
             sut.Insert(&entities.Problem{Tags: []string{"Bug"}})
             sut.Insert(&entities.Problem{Tags: []string{"Tag1"}})
 
@@ -102,12 +102,12 @@ func TestMongoProblemRepository(t *testing.T) {
 
             Convey("When I request a problem by Id", func() {
                 problems, _ := sut.GetAllProblems()
-                problem, err := sut.GetById(problems[0].Id)
+                single, err := sut.GetById(problems[0].Id)
 
                 Convey("Then I get that single problem", func() {
-                    So(problem, ShouldNotBeNil)
+                    So(single, ShouldNotBeNil)
                     So(err, ShouldBeNil)
-                    So(problem.Id, ShouldEqual, problems[0].Id)
+                    So(single.Id, ShouldEqual, problems[0].Id)
                 })
             })
         })

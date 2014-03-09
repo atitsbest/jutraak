@@ -63,6 +63,7 @@ func (self *ProblemApplicationService) AttachFileToProblem(problemId entities.Pr
     return nil
 }
 
+// Ein Attachment wieder vom Problem entfernen.
 func (self *ProblemApplicationService) RemoveProblemAttachment(problemId entities.ProblemId, filePath string) error {
     problem, err := self.problems.GetById(problemId)
     if err != nil {
@@ -88,6 +89,22 @@ func (self *ProblemApplicationService) RemoveProblemAttachment(problemId entitie
     // Datei löschen.
     os.Remove(filePath)
 
+    return nil
+}
+
+// Ein Problem kommentieren.
+func (self *ProblemApplicationService) CommentProblem(problemId entities.ProblemId, comment string) error {
+    problem, err := self.problems.GetById(problemId)
+    if err != nil {
+        return err
+    }
+
+    problem.Comments = append(problem.Comments, comment)
+
+    err = self.problems.Update(problem)
+    if err != nil {
+        return err
+    }
     return nil
 }
 

@@ -69,8 +69,8 @@ func TestProblemApplicationService(t *testing.T) {
                     })
 
                     Convey("When I remove the attachment", func() {
-                        updated, _ := repository.GetById(problem.Id)
-                        filePath := updated.Attachments[0].FilePath
+                        attached, _ := repository.GetById(problem.Id)
+                        filePath := attached.Attachments[0].FilePath
                         sut.RemoveProblemAttachment(problem.Id, filePath)
 
                         Convey("Then the file on disk is gone", func() {
@@ -88,6 +88,15 @@ func TestProblemApplicationService(t *testing.T) {
             })
 
             Reset(func() { problem = nil })
+
+            Convey("When I add a comment", func() {
+                sut.CommentProblem(problem.Id, "Comment")
+
+                Convey("Then the problem contains a comment", func() {
+                    commented, _ := repository.GetById(problem.Id)
+                    So(len(commented.Comments), ShouldEqual, 1)
+                })
+            })
         })
     })
 

@@ -120,7 +120,7 @@ func (self *MongoProblemRepository) GetById(id entities.ProblemId) (*entities.Pr
     result := &entities.Problem{}
     err = c.Find(bson.M{"id": id}).One(result)
     if err != nil {
-        panic(err)
+        return nil, err
     }
 
     return result, nil

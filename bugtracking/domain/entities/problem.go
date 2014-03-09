@@ -28,6 +28,7 @@ type Problem struct {
     CreatedBy   string
     CreatedAt   time.Time
     Attachments []*Attachment
+    Comments    []string
 
     resolved bool
 }
