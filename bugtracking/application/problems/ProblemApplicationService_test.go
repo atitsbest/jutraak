@@ -65,14 +65,23 @@ func TestProblemApplicationService(t *testing.T) {
 
                         Reset(func() {
                             os.Remove(updated.Attachments[0].FilePath)
-
                         })
                     })
 
                     Convey("When I remove the attachment", func() {
-                        Convey("Then the file on disk is gone", nil)
+                        updated, _ := repository.GetById(problem.Id)
+                        filePath := updated.Attachments[0].FilePath
+                        sut.RemoveProblemAttachment(problem.Id, filePath)
 
-                        Convey("And the poblem has one attachement less", nil)
+                        Convey("Then the file on disk is gone", func() {
+                            _, err := os.Stat(filePath)
+                            So(err, ShouldNotBeNil)
+                        })
+
+                        Convey("And the poblem has one attachement less", func() {
+                            removed, _ := repository.GetById(problem.Id)
+                            So(len(removed.Attachments), ShouldEqual, 0)
+                        })
                     })
 
                 })

@@ -3,6 +3,7 @@ package problems
 import (
     "github.com/atitsbest/jutraak/bugtracking/domain/entities"
     "github.com/atitsbest/jutraak/bugtracking/domain/valueobjects"
+    "os"
     "time"
 )
 
@@ -58,6 +59,34 @@ func (self *ProblemApplicationService) AttachFileToProblem(problemId entities.Pr
     if err != nil {
         return err
     }
+
+    return nil
+}
+
+func (self *ProblemApplicationService) RemoveProblemAttachment(problemId entities.ProblemId, filePath string) error {
+    problem, err := self.problems.GetById(problemId)
+    if err != nil {
+        return err
+    }
+
+    newAttachments := []*valueobjects.Attachment{}
+
+    // Attachment mit dem angegebenen Pfad finden.
+    for _, a := range problem.Attachments {
+        if a.FilePath != filePath {
+            // Kopieren.
+            newAttachments = append(newAttachments, a)
+        }
+    }
+
+    problem.Attachments = newAttachments
+    err = self.problems.Update(problem)
+    if err != nil {
+        return err
+    }
+
+    // Datei löschen.
+    os.Remove(filePath)
 
     return nil
 }

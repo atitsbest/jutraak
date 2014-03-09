@@ -1,14 +1,13 @@
 package ports
 
 import (
-    "fmt"
     "sort"
     "testing"
     "time"
 
     "github.com/atitsbest/jutraak/bugtracking/domain/entities"
 
-    // uuid "github.com/nu7hatch/gouuid"
+    uuid "github.com/nu7hatch/gouuid"
     . "github.com/smartystreets/goconvey/convey"
     "labix.org/v2/mgo"
 )
@@ -20,7 +19,6 @@ func TestMongoProblemRepository(t *testing.T) {
         removeAllProblems()
         sut := NewMongoProblemRepository("localhost")
         var problem *entities.Problem
-        fmt.Print("A")
 
         Convey("When I insert a new Problem", func() {
             problem = &entities.Problem{
@@ -32,31 +30,25 @@ func TestMongoProblemRepository(t *testing.T) {
             }
             err := sut.Insert(problem)
             So(err, ShouldBeNil)
-            pId := problem.Id
-            fmt.Print("AA%v", pId)
 
             Convey("Then the problem should be in MongoDB", func() {
-                fmt.Print("AAA%v", pId)
                 inserted, _ := sut.GetById(problem.Id)
                 So(inserted, ShouldNotBeNil)
                 So(inserted.Summary, ShouldEqual, problem.Summary)
                 So(inserted.Tags, ShouldResemble, problem.Tags)
 
                 Convey("And the new Id should be a valid ProblemId", func() {
-                    fmt.Print("AAAA ")
 
-                    // _, err := uuid.ParseHex(string(problem.Id))
-                    // So(err, ShouldBeNil)
-                    // So(problem.Id, ShouldEqual, inserted.Id)
+                    _, err := uuid.ParseHex(string(problem.Id))
+                    So(err, ShouldBeNil)
+                    So(problem.Id, ShouldEqual, inserted.Id)
                 })
             })
 
             Convey("When I get the inserted Problem", func() {
-                fmt.Print("AA1%v", pId)
                 inserted, _ := sut.GetById(problem.Id)
 
                 Convey("And update it with new values", func() {
-                    fmt.Print("AAA1 ")
                     inserted.Summary = "Hat sich geändert"
                     inserted.Tags = []string{"Bug", "CR"}
                     err := sut.Update(inserted)
