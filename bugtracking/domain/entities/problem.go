@@ -21,14 +21,16 @@ func NewProblemId() ProblemId {
 }
 
 type Problem struct {
-    Id          ProblemId
-    Summary     string
-    Description string
-    Tags        []string
-    CreatedBy   string
-    CreatedAt   time.Time
-    Attachments []*Attachment
-    Comments    []*Comment
+    Id           ProblemId
+    Summary      string
+    Description  string
+    Tags         []string
+    CreatedBy    string
+    CreatedAt    time.Time
+    LastChangeBy string
+    LastChangeAt time.Time
+    Attachments  []*Attachment
+    Comments     []*Comment
 
     resolved bool
 }

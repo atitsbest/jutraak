@@ -44,6 +44,27 @@ func (self *ProblemApplicationService) CreateNewProblem(
     return self.createNewProblem(&cmd)
 }
 
+func (self *ProblemApplicationService) ChangeProblemSummary(
+    problemId entities.ProblemId, summary string, description string, who string) error {
+
+    problem, err := self.problems.GetById(problemId)
+    if err != nil {
+        return err
+    }
+
+    problem.Summary = summary
+    problem.Description = description
+    problem.LastChangeBy = who
+    problem.LastChangeAt = time.Now()
+
+    err = self.problems.Update(problem)
+    if err != nil {
+        return err
+    }
+
+    return nil
+}
+
 // Hängt eine Datei an ein Problem an.
 func (self *ProblemApplicationService) AttachFileToProblem(problemId entities.ProblemId, fileName string, data []byte) error {
     problem, err := self.problems.GetById(problemId)

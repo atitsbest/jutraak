@@ -57,6 +57,22 @@ func TestProblemApplicationService(t *testing.T) {
                 })
             })
 
+            Convey("When I change the problem Description/Summary", func() {
+                sut.ChangeProblemSummary(problem.Id, "Neue Summary", "Neue Description", "Changer")
+
+                Convey("Then the changes are persisted", func() {
+                    problem, err = repository.GetById(problem.Id)
+                    So(err, ShouldBeNil)
+                    So(problem.Summary, ShouldEqual, "Neue Summary")
+                    So(problem.Description, ShouldEqual, "Neue Description")
+
+                    Convey("And the change date/user have been updated", func() {
+                        So(problem.LastChangeBy, ShouldEqual, "Changer")
+                        So(time.Since(problem.LastChangeAt), ShouldBeLessThan, oneSecond)
+                    })
+                })
+            })
+
             Convey("Given a file", func() {
 
                 Convey("When I attach that file to the problem", func() {
