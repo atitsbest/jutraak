@@ -1,0 +1,37 @@
+<div class="row">
+    <div class="col-sm-3">
+        <ul class="list-unstyled">
+            <li ng:repeat="tag in tags" ng:click="toggleTag(tag)"> 
+            <span class="" ng:class="{'label-primary label': selectedTags[tag]}">{{tag}}</span>
+            </li>
+        </ul>
+    </div>
+    <div class="col-sm-9 problems">
+        <div class="row problem" ng:repeat="problem in problems">
+            <div class="col-sm-12">
+                <h4 ng:bind="problem.Summary"></h4>
+                <p ng:bind="problem.Description"></p>
+
+                <ul class="list-unstyled list-inline">
+                    <li ng:repeat="attachment in problem.Attachments">
+                        <img ng:src="attachment.ContentType" alt="..." class="img-thumbnail"/>
+                    </li>
+                </ul>
+
+                <ul class="list-unstyled list-inline">
+                    <li ng:repeat="tag in problem.Tags">
+                    <span class="label label-default" ng:bind="tag"></span>
+                    </li>
+                </ul>
+
+                <small class="text-muted pull-right">
+                    <span ng:bind="problem.CreatedBy"></span>
+                    am <span ng:bind="problem.CreatedAt"></span>
+                </small>
+                <div class="clearfix"/>
+                    <hr />
+            </div>
+        </h1>
+    </div>
+</div>
+
