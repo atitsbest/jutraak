@@ -11,8 +11,15 @@ import (
     "github.com/atitsbest/jutraak/bugtracking/application/problems"
 )
 
-func ApiGetProblems(r render.Render, app problems.ProblemRepository) {
-    p, err := app.All()
+type (
+    ApiGetProblemsParams struct {
+        Query string   `form:"q"`
+        Tags  []string `form:"tags"`
+    }
+)
+
+func ApiGetProblems(params ApiGetProblemsParams, r render.Render, app problems.ProblemRepository) {
+    p, err := app.Filtered(params.Tags, params.Query)
     if err != nil {
         r.JSON(http.StatusInternalServerError, err)
     } else {

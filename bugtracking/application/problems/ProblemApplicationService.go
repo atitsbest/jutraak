@@ -1,7 +1,7 @@
 package problems
 
 import (
-    "github.com/atitsbest/jutraak/bugtracking/domain/entities"
+    . "github.com/atitsbest/jutraak/bugtracking/domain/entities"
     . "github.com/atitsbest/jutraak/bugtracking/domain/valueobjects"
     "os"
     "time"
@@ -9,20 +9,21 @@ import (
 
 // Interface zum Repository
 type ProblemRepository interface {
-    All() ([]*entities.Problem, error)
+    All() ([]*Problem, error)
     AllTags() ([]string, error)
-    Insert(*entities.Problem) error
-    Update(*entities.Problem) error
-    GetById(entities.ProblemId) (*entities.Problem, error)
+    Insert(*Problem) error
+    Update(*Problem) error
+    GetById(ProblemId) (*Problem, error)
+    Filtered(tags []string, q string) ([]*Problem, error)
 }
 
 type ProblemApplicationServiceInterface interface {
-    GetAllProblems() ([]*entities.Problem, error)
-    CreateNewProblem(summary string, description string, tags []string, createdBy string) (*entities.Problem, error)
-    ChangeProblemSummary(problemId entities.ProblemId, summary string, description string, who string) error
-    AttachFileToProblem(problemId entities.ProblemId, fileName string, data []byte) error
-    RemoveProblemAttachment(problemId entities.ProblemId, filePath string) error
-    CommentProblem(problemId entities.ProblemId, text string, who string, attachments []*Attachment) error
+    GetAllProblems() ([]*Problem, error)
+    CreateNewProblem(summary string, description string, tags []string, createdBy string) (*Problem, error)
+    ChangeProblemSummary(problemId ProblemId, summary string, description string, who string) error
+    AttachFileToProblem(problemId ProblemId, fileName string, data []byte) error
+    RemoveProblemAttachment(problemId ProblemId, filePath string) error
+    CommentProblem(problemId ProblemId, text string, who string, attachments []*Attachment) error
 }
 
 // Application für die Probleme.
@@ -38,7 +39,7 @@ func NewProblemApplicationService(problems ProblemRepository) *ProblemApplicatio
 }
 
 // Liefert eine Liste mit allen Problemen.
-func (self *ProblemApplicationService) GetAllProblems() ([]*entities.Problem, error) {
+func (self *ProblemApplicationService) GetAllProblems() ([]*Problem, error) {
     return self.problems.All()
 }
 
@@ -48,7 +49,7 @@ func (self *ProblemApplicationService) CreateNewProblem(
     summary string,
     description string,
     tags []string,
-    createdBy string) (*entities.Problem, error) {
+    createdBy string) (*Problem, error) {
 
     cmd := CreateNewProblemCommand{
         Summary:     summary,
@@ -61,7 +62,7 @@ func (self *ProblemApplicationService) CreateNewProblem(
 }
 
 func (self *ProblemApplicationService) ChangeProblemSummary(
-    problemId entities.ProblemId, summary string, description string, who string) error {
+    problemId ProblemId, summary string, description string, who string) error {
 
     problem, err := self.problems.GetById(problemId)
     if err != nil {
@@ -82,7 +83,7 @@ func (self *ProblemApplicationService) ChangeProblemSummary(
 }
 
 // Hängt eine Datei an ein Problem an.
-func (self *ProblemApplicationService) AttachFileToProblem(problemId entities.ProblemId, fileName string, data []byte) error {
+func (self *ProblemApplicationService) AttachFileToProblem(problemId ProblemId, fileName string, data []byte) error {
     problem, err := self.problems.GetById(problemId)
     if err != nil {
         return err
@@ -101,7 +102,7 @@ func (self *ProblemApplicationService) AttachFileToProblem(problemId entities.Pr
 }
 
 // Ein Attachment wieder vom Problem entfernen.
-func (self *ProblemApplicationService) RemoveProblemAttachment(problemId entities.ProblemId, filePath string) error {
+func (self *ProblemApplicationService) RemoveProblemAttachment(problemId ProblemId, filePath string) error {
     problem, err := self.problems.GetById(problemId)
     if err != nil {
         return err
@@ -131,14 +132,14 @@ func (self *ProblemApplicationService) RemoveProblemAttachment(problemId entitie
 
 // Ein Problem kommentieren.
 func (self *ProblemApplicationService) CommentProblem(
-    problemId entities.ProblemId, text string, who string, attachments []*Attachment) error {
+    problemId ProblemId, text string, who string, attachments []*Attachment) error {
 
     problem, err := self.problems.GetById(problemId)
     if err != nil {
         return err
     }
 
-    comment := entities.NewComment(text, who, attachments)
+    comment := NewComment(text, who, attachments)
     problem.Comments = append(problem.Comments, comment)
 
     err = self.problems.Update(problem)
@@ -149,8 +150,8 @@ func (self *ProblemApplicationService) CommentProblem(
 }
 
 // Erstellt ein neues Problem
-func (self *ProblemApplicationService) createNewProblem(cmd *CreateNewProblemCommand) (*entities.Problem, error) {
-    result := &entities.Problem{
+func (self *ProblemApplicationService) createNewProblem(cmd *CreateNewProblemCommand) (*Problem, error) {
+    result := &Problem{
         Summary:     cmd.Summary,
         Description: cmd.Description,
         Tags:        cmd.Tags,

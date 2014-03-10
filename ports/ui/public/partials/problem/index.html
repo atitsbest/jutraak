@@ -1,12 +1,21 @@
+<a href="#" class="btn btn-sm btn-primary">Neues Problem</a>
 <div class="row">
     <div class="col-sm-3">
-        <ul class="list-unstyled">
-            <li ng:repeat="tag in tags" ng:click="toggleTag(tag)"> 
-            <span class="" ng:class="{'label-primary label': selectedTags[tag]}">{{tag}}</span>
-            </li>
-        </ul>
+        <div class="row">
+            <input type="text" placeholder="Tags..." ng:model="tagQuery" />
+        </div>
+        <div class="row">
+            <ul class="list-unstyled">
+                <li ng:repeat="tag in tags | filter: tagQuery" ng:click="toggleTag(tag)"> 
+                <span class="" ng:class="{'label-primary label': selectedTags[tag]}">{{tag}}</span>
+                </li>
+            </ul>
+        </div>
     </div>
     <div class="col-sm-9 problems">
+        <div class="row">
+            <input type="text" class="col-sm-12" placeholder="Suche..." ng:model="problemQuery" />
+        </div>
         <div class="row problem" ng:repeat="problem in problems">
             <div class="col-sm-12">
                 <h4 ng:bind="problem.Summary"></h4>
@@ -26,7 +35,7 @@
 
                 <small class="text-muted pull-right">
                     <span ng:bind="problem.CreatedBy"></span>
-                    am <span ng:bind="problem.CreatedAt"></span>
+                    am <span ng:bind="problem.CreatedAt | date"></span>
                 </small>
                 <div class="clearfix"/>
                     <hr />

@@ -9,7 +9,7 @@ import (
     "github.com/atitsbest/jutraak/bugtracking/domain/entities"
     . "github.com/atitsbest/jutraak/bugtracking/domain/valueobjects"
     . "github.com/atitsbest/jutraak/config"
-    "github.com/atitsbest/jutraak/ports"
+    "github.com/atitsbest/jutraak/ports/repositories"
 
     . "github.com/smartystreets/goconvey/convey"
     "labix.org/v2/mgo"
@@ -17,7 +17,7 @@ import (
 
 func TestProblemApplicationService(t *testing.T) {
     var (
-        repository *ports.MongoProblemRepository
+        repository *repositories.MongoProblemRepository
         sut        *ProblemApplicationService
         problem    *entities.Problem
         err        error
@@ -26,7 +26,7 @@ func TestProblemApplicationService(t *testing.T) {
 
     // Only pass t into top-level Convey calls
     Convey("Given all the properties for a problem", t, func() {
-        repository = ports.NewMongoProblemRepository(Config.ConnectionString)
+        repository = repositories.NewMongoProblemRepository(Config.ConnectionString)
         sut = NewProblemApplicationService(repository)
 
         summary := "Wir haben ein Problem"

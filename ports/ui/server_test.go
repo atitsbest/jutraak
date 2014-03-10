@@ -1,6 +1,7 @@
 package server
 
 import (
+    // "fmt"
     "github.com/codegangsta/martini"
     . "github.com/smartystreets/goconvey/convey"
     "net/http"
@@ -31,6 +32,10 @@ func Test_Server(t *testing.T) {
 
             Convey("should GET /api/problems", func() {
                 shouldServe(t, sut, baseUrl+"/api/problems")
+
+                Convey("Should GET /api/problems?q=abc&tags=t1&tags=t2", func() {
+                    shouldServe(t, sut, baseUrl+"api/problems?q=abc&tags=t1&tags=t2")
+                })
             })
             Convey("should GET /api/problems/12345", func() {
                 shouldServe(t, sut, baseUrl+"/api/problems/12345")
@@ -83,6 +88,7 @@ func shouldServe(t *testing.T, server *martini.ClassicMartini, url string) {
     server.ServeHTTP(response, req)
 
     // Assert
+    // fmt.Print(response.Body)
     So(response.Code, ShouldEqual, http.StatusOK)
     So(response.Body.Len(), ShouldBeGreaterThan, 0)
 }
