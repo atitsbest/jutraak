@@ -2,7 +2,7 @@ package problems
 
 import (
     "github.com/atitsbest/jutraak/bugtracking/domain/entities"
-    "github.com/atitsbest/jutraak/bugtracking/domain/valueobjects"
+    . "github.com/atitsbest/jutraak/bugtracking/domain/valueobjects"
     "os"
     "time"
 )
@@ -50,7 +50,7 @@ func (self *ProblemApplicationService) AttachFileToProblem(problemId entities.Pr
     if err != nil {
         return err
     }
-    attachment, err := valueobjects.NewAttachment(fileName, data)
+    attachment, err := NewAttachment(fileName, data)
     if err != nil {
         return err
     }
@@ -70,7 +70,7 @@ func (self *ProblemApplicationService) RemoveProblemAttachment(problemId entitie
         return err
     }
 
-    newAttachments := []*valueobjects.Attachment{}
+    newAttachments := []*Attachment{}
 
     // Attachment mit dem angegebenen Pfad finden.
     for _, a := range problem.Attachments {
@@ -94,13 +94,14 @@ func (self *ProblemApplicationService) RemoveProblemAttachment(problemId entitie
 
 // Ein Problem kommentieren.
 func (self *ProblemApplicationService) CommentProblem(
-    problemId entities.ProblemId, text string, who string) error {
+    problemId entities.ProblemId, text string, who string, attachments []*Attachment) error {
+
     problem, err := self.problems.GetById(problemId)
     if err != nil {
         return err
     }
 
-    comment := entities.NewComment(text, who)
+    comment := entities.NewComment(text, who, attachments)
     problem.Comments = append(problem.Comments, comment)
 
     err = self.problems.Update(problem)

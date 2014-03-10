@@ -7,6 +7,7 @@ import (
     "time"
 
     "github.com/atitsbest/jutraak/bugtracking/domain/entities"
+    . "github.com/atitsbest/jutraak/bugtracking/domain/valueobjects"
     "github.com/atitsbest/jutraak/ports"
 
     . "github.com/smartystreets/goconvey/convey"
@@ -14,22 +15,28 @@ import (
 )
 
 func TestProblemApplicationService(t *testing.T) {
+    var (
+        repository *ports.MongoProblemRepository
+        sut        *ProblemApplicationService
+        problem    *entities.Problem
+        err        error
+    )
+    data, _ := ioutil.ReadFile("/Users/stephan/dev/go/src/github.com/atitsbest/jutraak/fixtures/image.png")
 
     // Only pass t into top-level Convey calls
     Convey("Given all the properties for a problem", t, func() {
-        repository := ports.NewMongoProblemRepository("localhost")
-        sut := NewProblemApplicationService(repository)
+        repository = ports.NewMongoProblemRepository("localhost")
+        sut = NewProblemApplicationService(repository)
 
         summary := "Wir haben ein Problem"
         description := "Nix geht mehr"
         createdBy := "Tester"
         tags := []string{"Tag1", "T A G 2", "Tags 3"}
-        var problem *entities.Problem
 
         Convey("When the problem is posted", func() {
             removeAllProblems()
-            problem, _ = sut.CreateNewProblem(
-                summary, description, tags, createdBy)
+            problem, err = sut.CreateNewProblem(summary, description, tags, createdBy)
+            So(err, ShouldBeNil)
 
             Convey("Then the problem should be saved by the repository", func() {
                 p, err := repository.GetById(problem.Id)
@@ -51,26 +58,25 @@ func TestProblemApplicationService(t *testing.T) {
             })
 
             Convey("Given a file", func() {
-                data, _ := ioutil.ReadFile("/Users/stephan/dev/go/src/github.com/atitsbest/jutraak/fixtures/image.png")
 
                 Convey("When I attach that file to the problem", func() {
                     err := sut.AttachFileToProblem(problem.Id, "image.png", data)
                     So(err, ShouldBeNil)
 
                     Convey("Then the problem contains one more attachment", func() {
-                        updated, _ := repository.GetById(problem.Id)
-                        So(len(updated.Attachments), ShouldEqual, 1)
-                        attachData, _ := ioutil.ReadFile(updated.Attachments[0].FilePath)
+                        problem, _ = repository.GetById(problem.Id)
+                        So(len(problem.Attachments), ShouldEqual, 1)
+                        attachData, _ := ioutil.ReadFile(problem.Attachments[0].FilePath)
                         So(attachData, ShouldResemble, data)
 
                         Reset(func() {
-                            os.Remove(updated.Attachments[0].FilePath)
+                            os.Remove(problem.Attachments[0].FilePath)
                         })
                     })
 
                     Convey("When I remove the attachment", func() {
-                        attached, _ := repository.GetById(problem.Id)
-                        filePath := attached.Attachments[0].FilePath
+                        problem, _ = repository.GetById(problem.Id)
+                        filePath := problem.Attachments[0].FilePath
                         sut.RemoveProblemAttachment(problem.Id, filePath)
 
                         Convey("Then the file on disk is gone", func() {
@@ -79,33 +85,51 @@ func TestProblemApplicationService(t *testing.T) {
                         })
 
                         Convey("And the poblem has one attachement less", func() {
-                            removed, _ := repository.GetById(problem.Id)
-                            So(len(removed.Attachments), ShouldEqual, 0)
+                            problem, _ := repository.GetById(problem.Id)
+                            So(len(problem.Attachments), ShouldEqual, 0)
                         })
                     })
 
                 })
             })
 
-            Reset(func() { problem = nil })
-
             Convey("When I add a comment", func() {
-                sut.CommentProblem(problem.Id, "Comment", "Tester")
+                sut.CommentProblem(problem.Id, "Comment", "Tester", nil)
 
                 Convey("Then the problem contains a comment", func() {
-                    commented, _ := repository.GetById(problem.Id)
-                    So(len(commented.Comments), ShouldEqual, 1)
+                    problem, _ = repository.GetById(problem.Id)
+                    So(len(problem.Comments), ShouldEqual, 1)
 
                     var comment *entities.Comment
-                    comment = commented.Comments[0]
+                    comment = problem.Comments[0]
 
                     Convey("And the comment contains who and when", func() {
                         So(comment.CreatedBy, ShouldEqual, "Tester")
                         So(time.Since(comment.CreatedAt), ShouldBeLessThan, oneSecond)
                     })
+
                 })
             })
+
+            Convey("When I add a comment with attachment", func() {
+                ca, err := NewAttachment("tester.jpg", data)
+                So(err, ShouldBeNil)
+                sut.CommentProblem(problem.Id, "Comment", "Tester", []*Attachment{ca})
+
+                Convey("Then the problem contains a comment with attachment", func() {
+                    problem, _ = repository.GetById(problem.Id)
+                    So(len(problem.Comments[0].Attachments), ShouldEqual, 1)
+                    cdata, _ := ioutil.ReadFile(problem.Comments[0].Attachments[0].FilePath)
+                    So(cdata, ShouldResemble, data)
+
+                    Reset(func() {
+                        os.Remove(problem.Comments[0].Attachments[0].FilePath)
+                    })
+                })
+            })
+
         })
+
     })
 
 }
