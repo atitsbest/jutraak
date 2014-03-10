@@ -74,6 +74,14 @@ func TestProblemApplicationService(t *testing.T) {
                 })
             })
 
+            Convey("When I request all problems", func() {
+                problems, _ := sut.GetAllProblems()
+
+                Convey("Then I get at least the posted problem", func() {
+                    So(len(problems), ShouldBeGreaterThan, 0)
+                })
+            })
+
             Convey("Given a file", func() {
 
                 Convey("When I attach that file to the problem", func() {

@@ -9,9 +9,20 @@ import (
 
 // Interface zum Repository
 type ProblemRepository interface {
+    All() ([]*entities.Problem, error)
+    AllTags() ([]string, error)
     Insert(*entities.Problem) error
     Update(*entities.Problem) error
     GetById(entities.ProblemId) (*entities.Problem, error)
+}
+
+type ProblemApplicationServiceInterface interface {
+    GetAllProblems() ([]*entities.Problem, error)
+    CreateNewProblem(summary string, description string, tags []string, createdBy string) (*entities.Problem, error)
+    ChangeProblemSummary(problemId entities.ProblemId, summary string, description string, who string) error
+    AttachFileToProblem(problemId entities.ProblemId, fileName string, data []byte) error
+    RemoveProblemAttachment(problemId entities.ProblemId, filePath string) error
+    CommentProblem(problemId entities.ProblemId, text string, who string, attachments []*Attachment) error
 }
 
 // Application für die Probleme.
@@ -24,6 +35,11 @@ func NewProblemApplicationService(problems ProblemRepository) *ProblemApplicatio
     return &ProblemApplicationService{
         problems: problems,
     }
+}
+
+// Liefert eine Liste mit allen Problemen.
+func (self *ProblemApplicationService) GetAllProblems() ([]*entities.Problem, error) {
+    return self.problems.All()
 }
 
 // Erstellt ein neues Problem.

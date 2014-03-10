@@ -74,7 +74,7 @@ func TestMongoProblemRepository(t *testing.T) {
             sut.Insert(&entities.Problem{Tags: []string{"Tag1"}})
 
             Convey("When I request all Problem tags", func() {
-                tags, _ := sut.GetAllTags()
+                tags, _ := sut.AllTags()
                 sort.Strings(tags)
 
                 Convey("Then I get a distinct list of all tags", func() {
@@ -84,7 +84,7 @@ func TestMongoProblemRepository(t *testing.T) {
             })
 
             Convey("When I request them all", func() {
-                problems, _ := sut.GetAllProblems()
+                problems, _ := sut.All()
 
                 Convey("Then I get a list of all 3 problems", func() {
                     So(len(problems), ShouldEqual, 3)
@@ -102,7 +102,7 @@ func TestMongoProblemRepository(t *testing.T) {
             })
 
             Convey("When I request a problem by Id", func() {
-                problems, _ := sut.GetAllProblems()
+                problems, _ := sut.All()
                 single, err := sut.GetById(problems[0].Id)
 
                 Convey("Then I get that single problem", func() {

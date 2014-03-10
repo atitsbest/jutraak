@@ -62,7 +62,7 @@ func (self *MongoProblemRepository) Update(problem *entities.Problem) error {
 }
 
 // Liefert alle Tags die in allen Problemen vorkommen.
-func (self *MongoProblemRepository) GetAllTags() ([]string, error) {
+func (self *MongoProblemRepository) AllTags() ([]string, error) {
     session, err := mgo.Dial(self.connectionString)
     if err != nil {
         return nil, err
@@ -80,7 +80,7 @@ func (self *MongoProblemRepository) GetAllTags() ([]string, error) {
 }
 
 // Liefert ein Array mit allen Problemen.
-func (self *MongoProblemRepository) GetAllProblems() ([]entities.Problem, error) {
+func (self *MongoProblemRepository) All() ([]*entities.Problem, error) {
     session, err := mgo.Dial(self.connectionString)
     if err != nil {
         return nil, err
@@ -88,7 +88,7 @@ func (self *MongoProblemRepository) GetAllProblems() ([]entities.Problem, error)
     defer session.Close()
 
     c := session.DB("jutraak_test").C("problems")
-    var result []entities.Problem
+    var result []*entities.Problem
     err = c.Find(nil).All(&result)
 
     return result, err

@@ -15,14 +15,14 @@ var baseUrl = "http://localhost" + port
 func Test_Server(t *testing.T) {
     var sut *martini.ClassicMartini
 
-    // Convey("Subject: Server", t, func() {
-    //     Convey("A running server", func() {
-    //         sut := initMartini()
-    //         go http.ListenAndServe(":3001", sut)
-    //
-    //         Convey("should GET /", func() { shouldServe(t, baseUrl+"/") })
-    //     })
-    // })
+    Convey("Subject: Server", t, func() {
+        Convey("A running server", func() {
+            sut = InitServer()
+            go http.ListenAndServe(port, sut)
+
+            Convey("should GET /", func() { shouldServe(t, sut, baseUrl+"/") })
+        })
+    })
 
     Convey("Subject: Problem API", t, func() {
         Convey("A running server", func() {
@@ -34,6 +34,9 @@ func Test_Server(t *testing.T) {
             })
             Convey("should GET /api/problems/12345", func() {
                 shouldServe(t, sut, baseUrl+"/api/problems/12345")
+            })
+            Convey("should GET /api/problems/tags", func() {
+                shouldServe(t, sut, baseUrl+"/api/problems/tags")
             })
 
             // Convey("should POST /api/projects", func() {
