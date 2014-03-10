@@ -6,7 +6,7 @@ import (
     "path"
     "path/filepath"
 
-    jutraak "github.com/atitsbest/jutraak"
+    . "github.com/atitsbest/jutraak/config"
     uuid "github.com/nu7hatch/gouuid"
 )
 
@@ -54,6 +54,6 @@ func generateAttachmentPath(fileName string) (string, error) {
         return "", err
     }
 
-    result := path.Join(jutraak.Config.AttachmentsPath, id.String()+ext)
+    result := path.Join(Config.AttachmentsPath, id.String()+ext)
     return result, nil
 }

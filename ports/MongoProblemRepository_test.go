@@ -7,6 +7,7 @@ import (
 
     "github.com/atitsbest/jutraak/bugtracking/domain/entities"
 
+    . "github.com/atitsbest/jutraak/config"
     uuid "github.com/nu7hatch/gouuid"
     . "github.com/smartystreets/goconvey/convey"
     "labix.org/v2/mgo"
@@ -15,7 +16,7 @@ import (
 func TestMongoProblemRepository(t *testing.T) {
     var problem *entities.Problem
     var inserted *entities.Problem
-    sut := NewMongoProblemRepository("localhost")
+    sut := NewMongoProblemRepository(Config.ConnectionString)
 
     // Only pass t into top-level Convey calls
     Convey("Given a Mongo-Problems-Repository", t, func() {
@@ -115,7 +116,7 @@ func TestMongoProblemRepository(t *testing.T) {
 }
 
 func removeAllProblems() {
-    session, err := mgo.Dial("localhost")
+    session, err := mgo.Dial(Config.ConnectionString)
     if err != nil {
         panic(err)
     }
