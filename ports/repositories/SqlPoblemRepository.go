@@ -1,12 +1,13 @@
 package repositories
 
 import (
+    . "github.com/atitsbest/jutraak/bugtracking/domain/entities"
     "github.com/jmoiron/sqlx"
     _ "github.com/lib/pq"
 )
 
 type SqlProblemRepository struct {
-    db *sqlx.DB
+    connectionString string
 }
 
 // CTR
@@ -15,5 +16,13 @@ func NewSqlProblemRepsoitory(connectionString string) (*SqlProblemRepository, er
     if err != nil {
         return nil, err
     }
-    return &SqlProblemRepository{db: db}, nil
+    db.Close()
+    return &SqlProblemRepository{
+        connectionString: connectionString,
+    }, nil
+}
+
+// Alle Probleme
+func (self *SqlProblemRepository) All() ([]*Problem, error) {
+    return nil, nil
 }
