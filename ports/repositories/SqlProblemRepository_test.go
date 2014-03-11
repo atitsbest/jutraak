@@ -1,34 +1,43 @@
-package repositories
+package repositories_test
 
 import (
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+    . "github.com/atitsbest/jutraak/ports/repositories"
+    . "github.com/smartystreets/goconvey/convey"
+    "testing"
 )
 
-var _ = Describe("SqlProblemRepository", func() {
-  var (
-    sut *SqlProblemRepository
-    err error
-  )
+func TestSqlProblemRepository(t *testing.T) {
+    var (
+        sut *SqlProblemRepository
+        err error //
+    )
 
-  Describe("Connect to database", func() {
-    Context("Valid connection string", func() {
-      sut, err = NewSqlProblemRepsoitory("right")
+    Convey("When I connect to database", t, func() {
+        Convey("with a valid connection string", func() {
+            sut, err = NewSqlProblemRepsoitory("user=jutraak dbname=jutraak_test sslmode=disable")
 
-      It("should create repository", func() {
-        Expect(err).To(Equal(nil))
-        Expect(sut).NotTo(Equal(nil))
-      })
+            Convey("it should create repository", func() {
+                So(err, ShouldBeNil)
+                So(sut, ShouldNotBeNil)
+            })
+        })
+
+        Convey("with an invalid connection string", func() {
+            sut, err = NewSqlProblemRepsoitory("wrong=verywrong")
+
+            Convey("it should return an error an no repository", func() {
+                So(err, ShouldNotBeNil)
+                So(sut, ShouldBeNil)
+            })
+        })
     })
 
-    Context("Invalid connection string", func() {
-      sut, err = NewSqlProblemRepsoitory("wrong")
+    Convey("Given 3 problems", t, func() {
+        sut, err = NewSqlProblemRepsoitory("user=jutraak dbname=jutraak_test sslmode=disable")
+        So(err, ShouldBeNil)
 
-      It("should return an error an no repository", func() {
-        Expect(err).NotTo(Equal(nil))
-        Expect(sut).To(Equal(nil))
-      })
+        Convey("When I query all problems", func() {
+            Convey("I get an arry with alle 3 problems", nil)
+        })
     })
-  })
-})
-
+}
