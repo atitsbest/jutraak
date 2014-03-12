@@ -39,7 +39,7 @@ func TestSqlProblemRepository(t *testing.T) {
     Convey("Given 3 problems", t, func() {
         sut, err = NewSqlProblemRepsoitory("user=jutraak dbname=jutraak_test sslmode=disable")
         So(err, ShouldBeNil)
-        execSql("fixtures/insert_3_test_problems.sql")
+        execSql("../../fixtures/insert_3_test_problems.sql")
 
         Convey("When I query all problems", func() {
             problems, err = sut.All()
@@ -47,6 +47,10 @@ func TestSqlProblemRepository(t *testing.T) {
             Convey("I get an array with alle 3 problems", func() {
                 So(len(problems), ShouldEqual, 3)
                 So(err, ShouldBeNil)
+
+                Convey("And the tags are parsed into an array", func() {
+                  So(problems[0].Tags, ShouldResemble, []string{"Bug", "UI"})
+                })
             })
         })
 
@@ -54,13 +58,23 @@ func TestSqlProblemRepository(t *testing.T) {
     })
 }
 
+
+
+
+
+
+
+
 func execSql(file string) {
     db, err := sqlx.Connect("postgres", "user=jutraak dbname=jutraak_test sslmode=disable")
     if err != nil {
         panic(err)
     }
     defer db.Close()
-    db.LoadFile(file)
+    _, err = db.LoadFile(file)
+    if err != nil {
+        panic(err)
+    }
 }
 
 func removeAllProblems() {

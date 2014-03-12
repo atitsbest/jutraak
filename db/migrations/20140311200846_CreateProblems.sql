@@ -17,5 +17,5 @@ CREATE TABLE problems (
 
 -- +goose Down
 -- SQL section 'Down' is executed when this migration is rolled back
-DROP TABLE problems;
+-- DROP TABLE problems;
 

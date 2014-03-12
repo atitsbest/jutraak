@@ -8,28 +8,30 @@ import (
 )
 
 // Interface zum Repository
-type ProblemRepository interface {
-    All() ([]*Problem, error)
-    AllTags() ([]string, error)
-    Insert(*Problem) error
-    Update(*Problem) error
-    GetById(ProblemId) (*Problem, error)
-    Filtered(tags []string, q string) ([]*Problem, error)
-}
+type (
+  ProblemRepository interface {
+      All() ([]*Problem, error)
+      AllTags() ([]string, error)
+      Insert(*Problem) error
+      Update(*Problem) error
+      GetById(ProblemId) (*Problem, error)
+      Filtered(tags []string, q string) ([]*Problem, error)
+  }
 
-type ProblemApplicationServiceInterface interface {
-    GetAllProblems() ([]*Problem, error)
-    CreateNewProblem(summary string, description string, tags []string, createdBy string) (*Problem, error)
-    ChangeProblemSummary(problemId ProblemId, summary string, description string, who string) error
-    AttachFileToProblem(problemId ProblemId, fileName string, data []byte) error
-    RemoveProblemAttachment(problemId ProblemId, filePath string) error
-    CommentProblem(problemId ProblemId, text string, who string, attachments []*Attachment) error
-}
+  ProblemApplicationServiceInterface interface {
+      GetAllProblems() ([]*Problem, error)
+      CreateNewProblem(summary string, description string, tags []string, createdBy string) (*Problem, error)
+      ChangeProblemSummary(problemId ProblemId, summary string, description string, who string) error
+      AttachFileToProblem(problemId ProblemId, fileName string, data []byte) error
+      RemoveProblemAttachment(problemId ProblemId, filePath string) error
+      CommentProblem(problemId ProblemId, text string, who string, attachments []*Attachment) error
+  }
 
-// Application für die Probleme.
-type ProblemApplicationService struct {
-    problems ProblemRepository
-}
+  // Application für die Probleme.
+  ProblemApplicationService struct {
+      problems ProblemRepository
+  }
+)
 
 // CTR
 func NewProblemApplicationService(problems ProblemRepository) *ProblemApplicationService {

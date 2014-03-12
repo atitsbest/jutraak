@@ -50,10 +50,10 @@ func (self *Problem) IsResolved() bool {
 }
 
 // Eine Datei an das Problem anhängen.
-func (self *Problem) AddAttachment(file *Attachment) error {
-    if len(self.Id) == 0 {
-        return domain.NewDomainError("Datei kann nur bei einem gespeicherten Problem angehängt werden!")
-    }
-    self.Attachments = append(self.Attachments, file)
-    return nil
-}
+// func (self *Problem) AddAttachment(file *Attachment) error {
+//     if len(self.Id) == 0 {
+//         return domain.NewDomainError("Datei kann nur bei einem gespeicherten Problem angehängt werden!")
+//     }
+//     self.Attachments = append(self.Attachments, file)
+//     return nil
+// }
